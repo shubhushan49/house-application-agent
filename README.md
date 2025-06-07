@@ -23,3 +23,13 @@ Problems:
 - When cancel run is pressed, the process terminates but the selenium browser does not close
 - Create pipes or events to send an exit event to the bot process from the UI
     - Close the browser before terminating the process
+
+
+### TODO NEW
+- Create a new class that's a parent class to EvListener
+- That class will be the shared object between processes
+- Change the variable in the shared class
+
+- - or maybe just pass a boolean value to the listener class
+- - exit if the boolean value is false
+- - This should be much easier

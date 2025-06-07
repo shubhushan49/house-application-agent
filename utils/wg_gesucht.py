@@ -15,6 +15,7 @@ from datetime import datetime
 from .models import Apartment, ENGINE
 from sqlalchemy.orm import sessionmaker
 import pyperclip
+import platform
 
 class Wg_Workflow():
     EIN_ZIMMER_WOHNUNG = "1-Zimmer-Wohnung"
@@ -23,6 +24,8 @@ class Wg_Workflow():
     HAUS = "Haus"
 
     def __init__(self,
+                 username: str,
+                 password: str,
                  driver: webdriver.Chrome,
                  cookies_path: Path,
                  room_types: list[str],
@@ -31,6 +34,8 @@ class Wg_Workflow():
                  other_intro: str,
                  max_budget: int = 550
                 ):
+        self.username = username
+        self.password = password
         self.driver = driver
         self.base_url = "https://www.wg-gesucht.de/"
         self.cookies_path = cookies_path
@@ -75,12 +80,12 @@ class Wg_Workflow():
         # enter email
         username_wg = self.make_elem_clickable_id('login_email_username')
         ActionChains(self.driver).move_to_element(username_wg).click().perform()
-        username_wg.send_keys(WG_USERNAME)
+        username_wg.send_keys(self.username)
 
         # enter password
         password_wg = self.make_elem_clickable_id('login_password')
         ActionChains(self.driver).move_to_element(password_wg).click().perform()
-        password_wg.send_keys(WG_PASSWORD)
+        password_wg.send_keys(self.password)
 
         # click on login
         login_button = self.driver.find_element(By.ID, 'login_submit')
@@ -156,12 +161,17 @@ class Wg_Workflow():
 
         if is_wg:
             nachricht = self.wg_intro
+            pyperclip.copy(self.wg_intro)
         else:
             nachricht = self.other_intro
+            pyperclip.copy(self.other_intro)
             
         txt_area = self.driver.find_element(By.ID, 'message_input')
+        if platform.system() == 'Darwin':
         # txt_area.send_keys(nachricht)
-        txt_area.send_keys(Keys.COMMAND, "v")
+            txt_area.send_keys(Keys.COMMAND, "v")
+        else:
+            txt_area.send_keys(Keys.CONTROL, "v")
         try:
             senden_btn = self.driver.find_element(By.XPATH, '//*[@id="messenger_form"]/div[1]/div[4]/div[2]/div[2]/button')
             senden_btn.click()
